@@ -11,7 +11,7 @@ You can access and use it here: [https://steveseguin.github.io/pink-noise-genera
 
 ## What to expect
 
-Below is a sample of what it looks like.  Open the site, click Play Pink Noise to start, and then you can press the button again to stop.
+Below is a sample of what it looks like.  Open the site, click "Play Pink Noise" to start, and then you can press the button again to stop.
 
 ![image](https://github.com/steveseguin/pink-noise-generator/assets/2575698/b57e32b1-bd87-4804-aa69-85f7cfdd584a)
 
