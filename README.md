@@ -3,10 +3,11 @@ This is just a simple pink noise Generator. It plays full-spectrum pink noise in
 
 I built it for the purpose of measuring the frequency response of some microphones I own. 
 
-## Try it now live
+## Try it now live. 
 
 You can access and use it here: [https://steveseguin.github.io/pink-noise-generator/](https://steveseguin.github.io/pink-noise-generator/)
 
+100% free. no ads. no user accounts.
 
 ## What to expect
 
