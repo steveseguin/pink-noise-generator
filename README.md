@@ -1,5 +1,7 @@
 # Pink Noise Generator 🩷🔉🩷🔊🩷🔉🩷
-This is just a simple pink noise Generator. It plays full-spectrum pink noise in the browser, with a little display of the spectrum to give you some comfort.
+This is just a simple pink noise Generator.
+
+It plays full-spectrum pink noise in the browser, with a little display of the spectrum to give you some visual confirmation of what it's generating.
 
 I built it for the purpose of measuring the frequency response of some microphones I own. 
 
