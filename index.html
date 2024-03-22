@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pink Noise Generator & Visualizer</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #160610;
+    color: #333;
+    padding: 10px;
+  }
+  h2 {
+    text-align: center;
+    margin: 0 0 20px;
+    font-size: 1.5em;
+  }
+  #startButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #5cb85c;
+    color: white;
+    cursor: pointer;
+    font-size: 1em;
+	opacity: 1;
+	visibility: visible;
+	overflow: hidden;
+	max-height: 50px;
+	transition: max-height 0.5s ease-out, opacity 0.5s ease-out, padding 0.5s ease-out;
+  }
+  canvas {
+    border: 1px solid #333;
+    margin-top: 20px;
+    height: auto;
+	min-height: 20vh;
+	max-height: 640px!important;
+  }
+  @media screen and (max-width: 640px) {
+    body {
+      padding: 5px;
+    }
+    h2 {
+      font-size: 1.2em;
+    }
+    #micSelect, #startButton {
+      padding: 8px 10px;
+    }
+    canvas {
+      margin-top: 15px;
+    }
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      background-color: #121212;
+      color: #e0e0e0;
+    }
+    #micSelect {
+      background-color: #2c2c2c;
+      border: 1px solid #444;
+      color: #e0e0e0;
+    }
+    #startButton {
+      background-color: #198754;
+    }
+    canvas {
+      border-color: #e0e0e0;
+    }
+  }
+  button {
+	padding:5px 10px;
+  }
+ </style>
+</head>
+<body>
+<h2>Pink Noise Generator & Visualizer</h2>
+<button id="toggleNoise">Play Pink Noise</button>
+<canvas id="visualizer" width="640" height="100"></canvas>
+
+<script>
+console.log("start");
+const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+document.addEventListener('DOMContentLoaded', function() {
+	console.log("start");
+    let playing = false;
+    let scriptNode = null;
+    let analyser = audioContext.createAnalyser();
+    const canvas = document.getElementById('visualizer');
+    const canvasCtx = canvas.getContext('2d');
+	let bufferSize = 4096;
+    analyser.fftSize = 2048;
+    const bufferLength = analyser.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    document.getElementById('toggleNoise').addEventListener('click', function() {
+        if (!playing) {
+            playing = true;
+            this.textContent = 'Stop Pink Noise';
+            startNoise();
+        } else {
+            playing = false;
+            this.textContent = 'Play Pink Noise';
+            stopNoise();
+        }
+    });
+
+    function startNoise() {
+		audioContext.resume();
+        scriptNode = audioContext.createScriptProcessor(bufferSize, 1, 1);
+        fillPinkNoise(scriptNode);
+        scriptNode.connect(analyser);
+        analyser.connect(audioContext.destination);
+        draw();
+    }
+
+    function stopNoise() {
+        if (scriptNode) {
+            scriptNode.disconnect();
+            analyser.disconnect();
+        }
+    }
+
+    function fillPinkNoise(node) {
+		let b0, b1, b2, b3, b4, b5, b6;
+		b0 = b1 = b2 = b3 = b4 = b5 = b6 = 0.0;
+
+        node.onaudioprocess = function(e) {
+            let output = e.outputBuffer.getChannelData(0);
+			for (let i = 0; i < bufferSize; i++) {
+				let white = Math.random() * 2 - 1;
+				b0 = 0.99886 * b0 + white * 0.0555179;
+				b1 = 0.99332 * b1 + white * 0.0750759;
+				b2 = 0.96900 * b2 + white * 0.1538520;
+				b3 = 0.86650 * b3 + white * 0.3104856;
+				b4 = 0.55000 * b4 + white * 0.5329522;
+				b5 = -0.7616 * b5 - white * 0.0168980;
+				let pink = b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362;
+				b6 = white * 0.115926;
+				output[i] = pink * 0.11; // (roughly) compensate for gain
+            }
+        };
+    }
+
+    function draw() {
+		requestAnimationFrame(draw);
+		analyser.getByteFrequencyData(dataArray);
+
+		canvasCtx.fillStyle = '#c3a2b4';
+		canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+
+		canvasCtx.lineWidth = 2;
+		canvasCtx.strokeStyle = '#b00066';
+		canvasCtx.beginPath();
+
+		const sliceWidth = canvas.width * 1.0 / bufferLength;
+		let x = 0;
+
+		for (let i = 0; i < bufferLength; i++) {
+			const v = dataArray[i] / 128.0;
+			const y = canvas.height - v * canvas.height / 2;
+
+			if (i === 0) {
+				canvasCtx.moveTo(x, y);
+			} else {
+				canvasCtx.lineTo(x, y);
+			}
+			x += sliceWidth;
+		}
+
+		canvasCtx.lineTo(canvas.width, canvas.height / 2);
+		canvasCtx.stroke();
+
+		canvasCtx.fillStyle = 'rgb(0, 0, 0)';
+		canvasCtx.font = '12px Arial';
+		canvasCtx.fillText('20 Hz', 0, canvas.height - 5); 
+		canvasCtx.fillText('10 kHz', canvas.width / 2 - 20, canvas.height - 5);
+		canvasCtx.fillText('20 kHz', canvas.width - 40, canvas.height - 5);
+	}
+});
+</script>
+</body>
+</html>
