@@ -55,6 +55,7 @@
     }
     canvas {
       margin-top: 15px;
+      max-width:100%;
     }
   }
   @media (prefers-color-scheme: dark) {
@@ -84,6 +85,8 @@
 <button id="toggleNoise">Play Pink Noise</button>
 <canvas id="visualizer" width="640" height="100"></canvas>
 
+<iframe src="https://ghbtns.com/github-btn.html?user=steveseguin&repo=pink-noise-generator&type=star&size=large&text=false" frameborder="0" scrolling="0" width="170" height="30" title="GitHub"></iframe>
+	
 <script>
 console.log("start");
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
