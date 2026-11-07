@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
 	console.log("start");
     let playing = false;
     let scriptNode = null;
+    let animationFrameId = null;
     let analyser = audioContext.createAnalyser();
     const canvas = document.getElementById('visualizer');
     const canvasCtx = canvas.getContext('2d');
@@ -129,6 +130,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function stopNoise() {
+        if (animationFrameId !== null) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
         if (scriptNode) {
             scriptNode.disconnect();
             analyser.disconnect();
@@ -157,7 +162,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function draw() {
-		requestAnimationFrame(draw);
+		animationFrameId = requestAnimationFrame(draw);
 		analyser.getByteFrequencyData(dataArray);
 
 		canvasCtx.fillStyle = '#c3a2b4';
